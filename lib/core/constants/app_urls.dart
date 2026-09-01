@@ -1,5 +1,5 @@
 class AppUrls {
-  static const String baseUrl = 'http://localhost:5001';
+  static const String baseUrl = 'https://science-stories-backend.onrender.com';
 
   // Dashboard Analytics
   static const String getDashboardAnalytics =
