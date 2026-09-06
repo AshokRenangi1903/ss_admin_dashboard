@@ -55,7 +55,7 @@ class DashboardPage extends StatelessWidget {
                       icon: Icons.auto_stories,
                     ),
                     AnalyticsCard(
-                      count: dashboardAnalytics.totalEras.toString(),
+                      count: dashboardAnalytics.totalQuizzes.toString(),
                       text: "Total Quizzes",
                       icon: Icons.question_mark,
                     ),
