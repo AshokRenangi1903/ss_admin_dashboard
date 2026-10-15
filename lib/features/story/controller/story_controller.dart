@@ -104,7 +104,7 @@ class StoryController extends GetxController {
     }
   }
 
-  // Get all stories
+  // Get all stories from an Era
   Future<void> getEraStories(String eraId) async {
     try {
       eraStoriesResponse.value = ApiResponse.loading();

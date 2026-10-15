@@ -13,7 +13,7 @@ class DashboardController extends GetxController {
 
   final DashboardAnalyticsRepository _repository =
       DashboardAnalyticsRepository();
- 
+
   final selectedMenuItem = DashboardMenu.dashboard.obs;
 
   void selectMenuItem(DashboardMenu menuItem) {
@@ -31,8 +31,7 @@ class DashboardController extends GetxController {
       dashboardAnalyticsResponse.value = ApiResponse.completed(
         dashboardAnalytics,
       );
-      print(dashboardAnalytics.toString());
-    } catch (e) {
+      } catch (e) {
       dashboardAnalyticsResponse.value = ApiResponse.error(e.toString());
     }
   }
