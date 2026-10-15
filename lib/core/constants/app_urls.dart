@@ -1,6 +1,5 @@
 class AppUrls {
-  static const String baseUrl = 'https://science-stories-backend.onrender.com';
-
+  static const String baseUrl = 'https://api.sciencestories.in';
   // Dashboard Analytics
   static const String getDashboardAnalytics =
       '$baseUrl/api/dashboardAnalytics/getDashboardAnalytics';
@@ -66,4 +65,3 @@ class AppUrls {
   static String adminLogout = '$baseUrl/api/auth/adminLogout';
   static String adminMe = '$baseUrl/api/auth/me';
 }
-
