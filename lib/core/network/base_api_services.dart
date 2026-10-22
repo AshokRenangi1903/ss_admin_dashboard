@@ -4,4 +4,9 @@ abstract class BaseApiServices {
   Future<dynamic> putApi(dynamic data, String url);
   Future<dynamic> patchApi(dynamic data, String url);
   Future<dynamic> deleteApi(String url);
+  Future<dynamic> uploadImage(
+    String url, {
+    required List<int> bytes,
+    required String filename,
+  });
 }

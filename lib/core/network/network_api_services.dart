@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http/browser_client.dart';
 import 'package:ss_admin_dashboard/core/exceptions/app_exceptions.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:ss_admin_dashboard/core/network/base_api_services.dart';
 
 class NetworkApiServices extends BaseApiServices {
@@ -100,6 +101,50 @@ class NetworkApiServices extends BaseApiServices {
       return responseJson;
     } on TimeoutException {
       throw RequestTimeOut('Request timed out');
+    } on SocketException {
+      throw InternetException('No internet connection');
+    }
+  }
+
+  // Image Upload
+  @override
+  Future<dynamic> uploadImage(
+    String url, {
+    required List<int> bytes,
+    required String filename,
+  }) async {
+    try {
+      final extension = filename.split('.').last.toLowerCase();
+
+      final mediaType = switch (extension) {
+        'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
+        'png' => MediaType('image', 'png'),
+        'webp' => MediaType('image', 'webp'),
+        _ => throw Exception(
+          'Only JPG, JPEG, PNG and WebP images are allowed.',
+        ),
+      };
+
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          bytes,
+          filename: filename,
+          contentType: mediaType,
+        ),
+      );
+
+      final streamedResponse = await _client
+          .send(request)
+          .timeout(const Duration(seconds: 60));
+
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return returnResponse(response);
+    } on TimeoutException {
+      throw RequestTimeOut('Image upload timed out');
     } on SocketException {
       throw InternetException('No internet connection');
     }

@@ -37,6 +37,11 @@ class StoryBlocksController extends GetxController {
   final RxnString animatedBlockId = RxnString();
   final RxBool isOrderChanged = false.obs;
 
+  // Upload image for Image Block or Scientist Card
+  Future<String> uploadImage(List<int> bytes, String filename) {
+    return _repository.uploadImage(bytes, filename);
+  }
+
   // Get StoryBlocks of a Story
   Future<void> getStoryBlocks() async {
     final storyId = storyWorkspaceController.story.id!;

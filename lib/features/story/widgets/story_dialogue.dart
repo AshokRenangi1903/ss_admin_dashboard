@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ss_admin_dashboard/features/era/controller/era_controller.dart';
@@ -5,6 +7,7 @@ import 'package:ss_admin_dashboard/features/story/controller/story_controller.da
 import 'package:ss_admin_dashboard/shared/colors/colors.dart';
 import 'package:ss_admin_dashboard/shared/components/Animations/loading_dots.dart';
 import 'package:ss_admin_dashboard/shared/components/app_button.dart';
+import 'package:ss_admin_dashboard/shared/components/image_preview_page.dart';
 import 'package:ss_admin_dashboard/shared/components/toggle_box.dart';
 
 class StoryDialogue extends StatelessWidget {
@@ -190,21 +193,79 @@ class StoryDialogue extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
 
-                        // Image Url
-                        TextFormField(
-                          controller: storyController.imageUrlController,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Image Url is required';
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Image Url",
-                            hintText: "Image Url",
-                          ),
-                        ),
+                        // Story Image Upload
+                        Text("Story Image"),
+                        const SizedBox(height: 10),
+                        // Story Image Upload
+                        Obx(() {
+                          final isUploading =
+                              storyController.isImageUploading.value;
+                          final imageUrl = storyController
+                              .uploadedImageUrl
+                              .value
+                              .trim();
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: isUploading
+                                      ? null
+                                      : storyController.pickAndUploadStoryImage,
+                                  icon: isUploading
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.upload_file),
+                                  label: Text(
+                                    isUploading
+                                        ? 'Uploading image...'
+                                        : 'Choose and Upload Image',
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+
+                              if (imageUrl.isEmpty)
+                                const Text('No image uploaded yet')
+                              else ...[
+                                SelectableText(
+                                  'Image URL: $imageUrl',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                const SizedBox(height: 8),
+
+                                TextButton.icon(
+                                  onPressed: () => Get.to(
+                                    () => ImagePreviewPage(imageUrl: imageUrl),
+                                  ),
+                                  icon: const Icon(Icons.open_in_new),
+                                  label: const Text('Open image preview'),
+                                ),
+                                const SizedBox(height: 8),
+
+                                Image.network(
+                                  imageUrl,
+                                  height: 150,
+                                  width: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    debugPrint(
+                                      'Story image preview error: $error',
+                                    );
+                                    return Text('Preview failed: $error');
+                                  },
+                                ),
+                              ],
+                            ],
+                          );
+                        }),
                         SizedBox(height: 10),
 
                         // isPublished

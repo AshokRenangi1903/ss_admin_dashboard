@@ -20,20 +20,13 @@ class EraRepository {
 
   // Create New Era
   Future<EraModel> createEra(EraModel era) async {
-    final response = await _api.postApi(
-      
-      AppUrls.createEra,
-      data: era.toJson(),
-    );
+    final response = await _api.postApi(AppUrls.createEra, data: era.toJson());
     return EraModel.fromJson(response['data']);
   }
 
   // Update an Era
   Future<EraModel> updateEra(String id, EraModel era) async {
-    final response = await _api.putApi(
-      era.toJson(),
-      AppUrls.updateEra(id),
-    );
+    final response = await _api.putApi(era.toJson(), AppUrls.updateEra(id));
 
     return EraModel.fromJson(response['data']);
   }
@@ -41,5 +34,16 @@ class EraRepository {
   // Delete an Era
   Future<void> deleteEra(String id) async {
     await _api.deleteApi(AppUrls.deleteEra(id));
+  }
+
+  // Uplaod era Image
+  Future<String> uploadEraImage(List<int> bytes, String filename) async {
+    final response = await _api.uploadImage(
+      AppUrls.uploadImage,
+      bytes: bytes,
+      filename: filename,
+    );
+
+    return response['data']['imageUrl'] as String;
   }
 }

@@ -6,6 +6,17 @@ import 'package:ss_admin_dashboard/features/story_workspace/story_blocks/models/
 class StoryBlockRepository {
   final BaseApiServices _api = NetworkApiServices();
 
+  // Upload an image for a story block
+  Future<String> uploadImage(List<int> bytes, String filename) async {
+    final response = await _api.uploadImage(
+      AppUrls.uploadImage,
+      bytes: bytes,
+      filename: filename,
+    );
+
+    return response['data']['imageUrl'] as String;
+  }
+
   // Get all story Blocks of a story
   Future<List<StoryBlockModel>> getStoryBlocks(String storyId) async {
     final response = await _api.getApi(AppUrls.getStoryBlocks(storyId));

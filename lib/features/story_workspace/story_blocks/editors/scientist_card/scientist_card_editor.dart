@@ -89,21 +89,61 @@ class ScientistCardEditor extends StatelessWidget {
                       SizedBox(height: 12),
 
                       // Scientist ImageUrl
-                      TextFormField(
-                        controller:
-                            scientistCardController.scientistImageUrlController,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Scientist Image Url can\'t be null';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "Image Url",
-                          labelText: "Image Url",
-                        ),
-                      ),
+                      Obx(() {
+                        final imageUrl =
+                            scientistCardController.uploadedImageUrl.value;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed:
+                                  scientistCardController.isImageUploading.value
+                                  ? null
+                                  : scientistCardController
+                                        .pickAndUploadScientistImage,
+                              icon:
+                                  scientistCardController.isImageUploading.value
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.cloud_upload_outlined),
+                              label: Text(
+                                scientistCardController.isImageUploading.value
+                                    ? 'Uploading...'
+                                    : 'Upload Scientist Image',
+                              ),
+                            ),
+
+                            if (imageUrl != null && imageUrl.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  imageUrl,
+                                  height: 180,
+                                  width: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Text(
+                                      'Unable to load scientist image preview.',
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SelectableText(
+                                imageUrl,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ],
+                        );
+                      }),
                       SizedBox(height: 12),
 
                       // Birth and Death

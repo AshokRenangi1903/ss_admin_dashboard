@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ss_admin_dashboard/core/response/api_response.dart';
@@ -35,6 +36,41 @@ class StoryController extends GetxController {
   final RxBool isPublished = false.obs;
   final RxBool isPopular = false.obs;
   final RxBool isUpdating = false.obs;
+
+  final Rxn<PlatformFile> selectedImage = Rxn<PlatformFile>();
+  final RxBool isImageUploading = false.obs;
+  final RxString uploadedImageUrl = ''.obs;
+  final Rxn<List<int>> selectedImageBytes = Rxn<List<int>>();
+
+  // -----------------------------
+  //  Pick and Upload Story Image
+  // -----------------------------
+  Future<void> pickAndUploadStoryImage() async {
+    try {
+      final file = await FilePicker.pickFile(type: FileType.image);
+
+      if (file == null) return;
+
+      final bytes = await file.readAsBytes();
+
+      if (bytes.length > 5 * 1024 * 1024) {
+        throw Exception('Image size must be 5 MB or less.');
+      }
+
+      isImageUploading.value = true;
+
+      final imageUrl = await _repository.uploadStoryImage(bytes, file.name);
+
+      imageUrlController.text = imageUrl;
+      uploadedImageUrl.value = imageUrl;
+      selectedImage.value = file;
+      selectedImageBytes.value = bytes;
+    } catch (error) {
+      Get.snackbar('Upload failed', error.toString());
+    } finally {
+      isImageUploading.value = false;
+    }
+  }
 
   // ---------------------
   // Search Filter Start
@@ -165,6 +201,7 @@ class StoryController extends GetxController {
       titleController.text = story.title ?? '';
       descriptionController.text = story.description ?? '';
       imageUrlController.text = story.imageUrl ?? '';
+      uploadedImageUrl.value = story.imageUrl ?? '';
       disciplineController.text = story.discipline ?? '';
       geolocationController.text = story.geolocation ?? '';
       estimatedReadTimeController.text = story.estimatedReadTime ?? '';
@@ -290,5 +327,8 @@ class StoryController extends GetxController {
     scientistsController.clear();
     isPublished.value = false;
     isPopular.value = false;
+    selectedImage.value = null;
+    selectedImageBytes.value = null;
+    uploadedImageUrl.value = '';
   }
 }

@@ -33,7 +33,6 @@ class StoryRepository {
   // Create a new Story
   Future<StoryModel> createStory(StoryModel story, String eraId) async {
     final response = await _api.postApi(
-     
       AppUrls.createStory(eraId),
       data: story.toJson(),
     );
@@ -45,7 +44,7 @@ class StoryRepository {
   Future<StoryModel> updateStory(StoryModel story, String storyId) async {
     final response = await _api.putApi(
       story.toJson(),
-      
+
       AppUrls.updateStory(storyId),
     );
 
@@ -54,18 +53,27 @@ class StoryRepository {
 
   // Delete a Story
   Future<void> deleteStory(String id) async {
-    await _api.deleteApi( AppUrls.deleteStory(id));
+    await _api.deleteApi(AppUrls.deleteStory(id));
   }
 
   // Reorder Stories of an Era
   Future<dynamic> reorderStories(List<String> orderedIds, String eraId) async {
     print("Repo orderIds $orderedIds");
-    final response = await _api.patchApi(
-      {"storyIds": orderedIds},
-
-      AppUrls.reorderStories(eraId),
-    );
+    final response = await _api.patchApi({
+      "storyIds": orderedIds,
+    }, AppUrls.reorderStories(eraId));
 
     return response;
+  }
+
+  // Upload Story Image
+  Future<String> uploadStoryImage(List<int> bytes, String filename) async {
+    final response = await _api.uploadImage(
+      AppUrls.uploadImage,
+      bytes: bytes,
+      filename: filename,
+    );
+
+    return response['data']['imageUrl'] as String;
   }
 }

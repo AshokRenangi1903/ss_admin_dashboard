@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:ss_admin_dashboard/features/era/controller/era_controller.dart';
 import 'package:ss_admin_dashboard/shared/colors/colors.dart';
 import 'package:ss_admin_dashboard/shared/components/app_button.dart';
+import 'package:ss_admin_dashboard/shared/components/image_preview_page.dart';
 
 class EraDialogue extends StatelessWidget {
   final String title;
@@ -114,23 +115,77 @@ class EraDialogue extends StatelessWidget {
                         ),
                         SizedBox(height: 20),
 
-                        // Image Url
-                        TextFormField(
-                          controller: eraController.imageUrlController,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Image Url is required';
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Image Url",
-                            hintText: "Image Url",
-                          ),
-                        ),
-                        SizedBox(height: 10),
+                        // Era Image Upload
+                        Obx(() {
+                          final isUploading =
+                              eraController.isImageUploading.value;
+                          final imageUrl = eraController.uploadedImageUrl.value
+                              .trim();
 
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: isUploading
+                                      ? null
+                                      : eraController.pickAndUploadEraImage,
+                                  icon: isUploading
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.upload_file),
+                                  label: Text(
+                                    isUploading
+                                        ? 'Uploading image...'
+                                        : 'Choose and Upload Image',
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+
+                              if (imageUrl.isEmpty)
+                                const Text('No image uploaded yet')
+                              else ...[
+                                SelectableText(
+                                  'Image URL: $imageUrl',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                const SizedBox(height: 8),
+
+                                TextButton.icon(
+                                  onPressed: () => Get.to(
+                                    () => ImagePreviewPage(imageUrl: imageUrl),
+                                  ),
+                                  icon: const Icon(Icons.open_in_new),
+                                  label: const Text('Open image preview'),
+                                ),
+                                const SizedBox(height: 8),
+
+                                Image.network(
+                                  imageUrl,
+                                  height: 150,
+                                  width: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    debugPrint(
+                                      'Era image preview error: $error',
+                                    );
+                                    return Text('Preview failed: $error');
+                                  },
+                                ),
+                              ],
+                            ],
+                          );
+                        }),
+
+                        const SizedBox(height: 10),
+                        
                         // isPublished
                         Row(
                           children: [
@@ -194,3 +249,4 @@ class EraDialogue extends StatelessWidget {
     });
   }
 }
+

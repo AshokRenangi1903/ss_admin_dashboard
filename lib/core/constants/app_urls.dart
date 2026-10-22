@@ -1,5 +1,9 @@
 class AppUrls {
   static const String baseUrl = 'https://api.sciencestories.in';
+  // static const String baseUrl = 'http://localhost:5001';
+
+  // Image upload
+  static const String uploadImage = '$baseUrl/api/uploads/image';
   // Dashboard Analytics
   static const String getDashboardAnalytics =
       '$baseUrl/api/dashboardAnalytics/getDashboardAnalytics';

@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
@@ -26,6 +27,38 @@ class ScientistCardController extends GetxController {
 
   StoryBlockModel? editingBlock;
   final RxBool isLoading = false.obs;
+
+  final RxBool isImageUploading = false.obs;
+  final RxnString uploadedImageUrl = RxnString();
+
+  Future<void> pickAndUploadScientistImage() async {
+    try {
+      final file = await FilePicker.pickFile(type: FileType.image);
+
+      if (file == null) return;
+
+      final bytes = await file.readAsBytes();
+
+      if (bytes.length > 5 * 1024 * 1024) {
+        Get.snackbar('Image too large', 'Choose an image under 5 MB.');
+        return;
+      }
+
+      isImageUploading.value = true;
+
+      final imageUrl = await storyBlocksController.uploadImage(
+        bytes,
+        file.name,
+      );
+
+      scientistImageUrlController.text = imageUrl;
+      uploadedImageUrl.value = imageUrl;
+    } catch (e) {
+      Get.snackbar('Upload failed', e.toString());
+    } finally {
+      isImageUploading.value = false;
+    }
+  }
 
   // Create the Scientist Card block
   Future<void> createScientistCardBlock() async {
@@ -117,6 +150,8 @@ class ScientistCardController extends GetxController {
     deathController.clear();
     scientistImageUrlController.clear();
     editingBlock = null;
+    uploadedImageUrl.value = null;
+    isImageUploading.value = false;
   }
 
   // Loading the Highlight block
@@ -127,6 +162,9 @@ class ScientistCardController extends GetxController {
     birthController.text = block.content?["birth"] ?? "";
     deathController.text = block.content?["death"] ?? "";
     scientistImageUrlController.text = block.content?["imageUrl"] ?? "";
+    uploadedImageUrl.value = scientistImageUrlController.text.isEmpty
+        ? null
+        : scientistImageUrlController.text;
     scientistNameController.text = block.content?["scientistName"] ?? "";
 
     final descriptionOps = block.content?['descriptionOps'];

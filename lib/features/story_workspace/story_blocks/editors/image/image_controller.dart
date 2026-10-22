@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,38 @@ class ImageController extends GetxController {
 
   late final QuillController quillController;
   final RxBool isLoading = false.obs;
+
+  final RxBool isImageUploading = false.obs;
+  final RxnString uploadedImageUrl = RxnString();
+
+  Future<void> pickAndUploadImage() async {
+    try {
+      final file = await FilePicker.pickFile(type: FileType.image);
+
+      if (file == null) return;
+
+      final bytes = await file.readAsBytes();
+
+      if (bytes.length > 5 * 1024 * 1024) {
+        Get.snackbar('Image too large', 'Choose an image under 5 MB.');
+        return;
+      }
+
+      isImageUploading.value = true;
+
+      final imageUrl = await storyBlocksController.uploadImage(
+        bytes,
+        file.name,
+      );
+
+      imageUrlController.text = imageUrl;
+      uploadedImageUrl.value = imageUrl;
+    } catch (e) {
+      Get.snackbar('Upload failed', e.toString());
+    } finally {
+      isImageUploading.value = false;
+    }
+  }
 
   // Create the Image block
   Future<void> createImageBlock() async {
@@ -102,6 +135,7 @@ class ImageController extends GetxController {
     editingBlock = block;
     labelController.text = block.label ?? "";
     imageUrlController.text = block.content?["imageUrl"] ?? "";
+    uploadedImageUrl.value = block.content?['imageUrl'] as String?;
 
     final captionOps = block.content?['captionOps'];
     if (captionOps != null) {
@@ -117,6 +151,7 @@ class ImageController extends GetxController {
     labelController.clear();
     quillController.clear();
     imageUrlController.clear();
+    isImageUploading.value = false;
     titleController.clear();
     editingBlock = null;
   }

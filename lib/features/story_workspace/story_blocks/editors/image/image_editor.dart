@@ -71,20 +71,59 @@ class ImageEditor extends StatelessWidget {
                       SizedBox(height: 12),
 
                       //  Image Url
-                      TextFormField(
-                        controller: imageController.imageUrlController,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Image Url is required';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "Image Url",
-                          labelText: "Image Url",
-                        ),
-                      ),
+                      Obx(() {
+                        final imageUrl = imageController.uploadedImageUrl.value;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: imageController.isImageUploading.value
+                                  ? null
+                                  : imageController.pickAndUploadImage,
+                              icon: imageController.isImageUploading.value
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.cloud_upload_outlined),
+                              label: Text(
+                                imageController.isImageUploading.value
+                                    ? 'Uploading...'
+                                    : 'Upload Image',
+                              ),
+                            ),
+
+                            if (imageUrl != null && imageUrl.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  imageUrl,
+                                  height: 180,
+                                  width: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Text(
+                                      'Unable to load image preview.',
+                                    );
+                                  },
+                                ),
+                              ),
+
+                              const SizedBox(height: 8),
+                              SelectableText(
+                                imageUrl,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ],
+                        );
+                      }),
                       SizedBox(height: 12),
 
                       // Caption

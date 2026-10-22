@@ -4,6 +4,7 @@ import 'package:ss_admin_dashboard/core/response/api_response.dart';
 import 'package:ss_admin_dashboard/features/era/model/era_model.dart';
 import 'package:ss_admin_dashboard/features/era/repository/era_repository.dart';
 import 'package:ss_admin_dashboard/features/story/controller/story_controller.dart';
+import 'package:file_picker/file_picker.dart';
 
 class EraController extends GetxController {
   @override
@@ -16,6 +17,36 @@ class EraController extends GetxController {
   final storyController = Get.find<StoryController>();
 
   final erasResponse = ApiResponse<List<EraModel>>.loading().obs;
+
+  final Rxn<PlatformFile> selectedImage = Rxn<PlatformFile>();
+  final RxBool isImageUploading = false.obs;
+  final RxString uploadedImageUrl = ''.obs;
+
+  Future<void> pickAndUploadEraImage() async {
+    try {
+      final file = await FilePicker.pickFile(type: FileType.image);
+
+      if (file == null) return;
+
+      final bytes = await file.readAsBytes();
+
+      if (bytes.length > 5 * 1024 * 1024) {
+        throw Exception('Image size must be 5 MB or less.');
+      }
+
+      isImageUploading.value = true;
+
+      final imageUrl = await _repository.uploadEraImage(bytes, file.name);
+
+      imageUrlController.text = imageUrl;
+      uploadedImageUrl.value = imageUrl;
+      selectedImage.value = file;
+    } catch (error) {
+      Get.snackbar('Upload failed', error.toString()); 
+    } finally {
+      isImageUploading.value = false;
+    }
+  }
 
   // Get Eras
   Future<void> getAllEras() async {
@@ -80,6 +111,8 @@ class EraController extends GetxController {
     endYearController.text = era.endYear!;
     imageUrlController.text = era.imageUrl!;
     isPublished.value = era.isPublished!;
+    selectedImage.value = null;
+    uploadedImageUrl.value = era.imageUrl ?? '';
   }
 
   Future<void> updateEra() async {
@@ -135,6 +168,8 @@ class EraController extends GetxController {
     endYearController.clear();
     imageUrlController.clear();
     isPublished.value = false; // or false, depending on your default
+    selectedImage.value = null;
+    uploadedImageUrl.value = '';
   }
 
   // Disposing
