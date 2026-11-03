@@ -149,10 +149,19 @@ class ImageController extends GetxController {
   // Clear Editor
   void clearImageEditor() {
     labelController.clear();
-    quillController.clear();
-    imageUrlController.clear();
-    isImageUploading.value = false;
     titleController.clear();
+    imageUrlController.clear();
+
+    // Clear previous image preview
+    uploadedImageUrl.value = null;
+
+    // Reset upload state
+    isImageUploading.value = false;
+
+    // Clear caption
+    quillController.clear();
+
+    // Reset editing mode
     editingBlock = null;
   }
 

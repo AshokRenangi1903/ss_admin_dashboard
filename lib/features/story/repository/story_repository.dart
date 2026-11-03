@@ -30,6 +30,12 @@ class StoryRepository {
     return eraStoriesList;
   }
 
+  // Get Story Meta data by ID
+  Future<StoryModel> getStoryById(String storyId) async {
+    final response = await _api.getApi(AppUrls.getStoryById(storyId));
+    return StoryModel.fromJson(response['data']);
+  }
+
   // Create a new Story
   Future<StoryModel> createStory(StoryModel story, String eraId) async {
     final response = await _api.postApi(

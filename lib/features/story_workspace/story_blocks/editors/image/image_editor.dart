@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:ss_admin_dashboard/features/story_workspace/story_blocks/editors/image/image_controller.dart';
 import 'package:ss_admin_dashboard/shared/colors/colors.dart';
 import 'package:ss_admin_dashboard/shared/components/app_button.dart';
+import 'package:ss_admin_dashboard/shared/components/image_preview_page.dart';
 
 class ImageEditor extends StatelessWidget {
   const ImageEditor({super.key});
@@ -98,7 +99,7 @@ class ImageEditor extends StatelessWidget {
                             ),
 
                             if (imageUrl != null && imageUrl.isNotEmpty) ...[
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
 
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
@@ -116,9 +117,22 @@ class ImageEditor extends StatelessWidget {
                               ),
 
                               const SizedBox(height: 8),
+
                               SelectableText(
                                 imageUrl,
                                 style: const TextStyle(fontSize: 12),
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  Get.to(
+                                    () => ImagePreviewPage(imageUrl: imageUrl),
+                                  );
+                                },
+                                icon: const Icon(Icons.open_in_new),
+                                label: const Text('Preview Image'),
                               ),
                             ],
                           ],

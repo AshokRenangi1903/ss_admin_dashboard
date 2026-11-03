@@ -10,9 +10,22 @@ class StoryWorkspaceBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final storyWorkspaceController = Get.find<StoryWorkspaceController>();
+    final controller = Get.find<StoryWorkspaceController>();
+
     return Obx(() {
-      switch (storyWorkspaceController.currentStep.value) {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (controller.errorMessage.value != null) {
+        return Center(child: Text(controller.errorMessage.value!));
+      }
+
+      if (controller.story.value == null) {
+        return const Center(child: Text('Story not found.'));
+      }
+
+      switch (controller.currentStep.value) {
         case 0:
           return SingleChildScrollView(child: StoryDetailsStep());
         case 1:
@@ -20,7 +33,7 @@ class StoryWorkspaceBody extends StatelessWidget {
         case 2:
           return SingleChildScrollView(child: StoryPreviewPublishStep());
         default:
-          return Center(child: Text("default block"));
+          return const Center(child: Text('Invalid step.'));
       }
     });
   }

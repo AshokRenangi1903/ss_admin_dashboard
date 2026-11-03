@@ -74,30 +74,33 @@ class QuizFilterBar extends StatelessWidget {
                 Expanded(
                   child: Obx(() {
                     final eras = eraController.erasResponse.value.data;
+                    final selectedEraId =
+                        quizController.selectedEraIdFilter.value;
+
+                    final validSelectedEraId =
+                        eras?.any((era) => era.id == selectedEraId) == true
+                        ? selectedEraId
+                        : null;
+
                     return DropdownButtonFormField<String>(
-                      initialValue: quizController.selectedEraIdFilter.value,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Select Era';
-                        }
-                        return null;
-                      },
+                      initialValue: validSelectedEraId,
                       decoration: const InputDecoration(
                         labelText: "Era",
                         border: OutlineInputBorder(),
                         hintText: "Select Era",
                       ),
                       items: [
-                        DropdownMenuItem<String>(
+                        const DropdownMenuItem<String>(
                           value: null,
                           child: Text("All"),
                         ),
-                        ...eras!.map((era) {
-                          return DropdownMenuItem<String>(
-                            value: era.id,
-                            child: Text(era.title!),
-                          );
-                        }),
+                        if (eras != null)
+                          ...eras.map((era) {
+                            return DropdownMenuItem<String>(
+                              value: era.id,
+                              child: Text(era.title ?? "Untitled Era"),
+                            );
+                          }),
                       ],
                       onChanged: (value) {
                         quizController.selectedEraIdFilter.value = value;

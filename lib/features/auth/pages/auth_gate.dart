@@ -17,8 +17,15 @@ class AuthGate extends StatelessWidget {
 
       // Admin is authenticated
       if (authController.isAuthenticated.value) {
+        final args = Get.arguments;
+        final returnTo = args is Map ? args['returnTo'] as String? : null;
+
         Future.microtask(() {
-          Get.offNamed(RoutesName.dashboard);
+          Get.offNamed(
+            returnTo != null && returnTo.isNotEmpty
+                ? returnTo
+                : RoutesName.dashboard,
+          );
         });
 
         return const Scaffold(body: Center(child: CircularProgressIndicator()));

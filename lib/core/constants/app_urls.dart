@@ -15,6 +15,9 @@ class AppUrls {
 
   // Story
   static const String getAllStories = '$baseUrl/api/stories/getAllStories';
+
+  static String getStoryById(String storyID) =>
+      '$baseUrl/api/stories/$storyID/getStory';
   static String getEraStories(String eraId) =>
       '$baseUrl/api/stories/$eraId/getEraStories';
   static String createStory(String eraId) =>

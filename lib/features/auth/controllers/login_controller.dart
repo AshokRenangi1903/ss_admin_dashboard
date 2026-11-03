@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/state_manager.dart';
 import 'package:ss_admin_dashboard/core/routes/routes_name.dart';
 import 'package:ss_admin_dashboard/features/auth/controllers/auth_controller.dart';
 import 'package:ss_admin_dashboard/features/auth/models/login_request.dart';

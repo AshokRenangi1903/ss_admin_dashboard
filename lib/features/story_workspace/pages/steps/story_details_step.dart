@@ -8,165 +8,143 @@ class StoryDetailsStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final storyWorkspaceController = Get.find<StoryWorkspaceController>();
+    final controller = Get.find<StoryWorkspaceController>();
 
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Bascic Details of Story
-          Text("Basic Story Details"),
-          SizedBox(height: 10),
+    return Obx(() {
+      final story = controller.story.value;
 
-          // Era
-          TextFormField(
-            readOnly: true,
-            initialValue: storyWorkspaceController.story.era!.title,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Era",
-              hintText: "Era",
+      if (story == null) {
+        return const Center(child: Text('Story details unavailable.'));
+      }
+
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Basic Story Details'),
+            const SizedBox(height: 10),
+
+            TextFormField(
+              readOnly: true,
+              initialValue: story.era?.title ?? '',
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Era',
+              ),
             ),
-          ),
+            const SizedBox(height: 10),
 
-          SizedBox(height: 10),
-
-          // title of the story
-          TextFormField(
-            readOnly: true,
-            initialValue: storyWorkspaceController.story.title,
-
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Title",
-              hintText: "title",
+            TextFormField(
+              readOnly: true,
+              initialValue: story.title ?? '',
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Title',
+              ),
             ),
-          ),
-          SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-          // description of story
-          TextFormField(
-            readOnly: true,
-            maxLines: 4,
-            initialValue: storyWorkspaceController.story.description,
-
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Description",
-              hintText: "Description",
+            TextFormField(
+              readOnly: true,
+              maxLines: 4,
+              initialValue: story.description ?? '',
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Description',
+              ),
             ),
-          ),
-          SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-          // Other Details
-          Text("Other Details"),
-          SizedBox(height: 10),
-          // Subject & discipline
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: TextFormField(
-                  readOnly: true,
-                  initialValue: storyWorkspaceController.story.subject,
+            const Text('Other Details'),
+            const SizedBox(height: 10),
 
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Subject",
-                    hintText: "Subject",
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    initialValue: story.subject ?? '',
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Subject',
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 20),
-              Expanded(
-                child: TextFormField(
-                  readOnly: true,
-                  initialValue: storyWorkspaceController.story.discipline,
-
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Discipline",
-                    hintText: "Discipline",
+                const SizedBox(width: 20),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    initialValue: story.discipline ?? '',
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Discipline',
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: TextFormField(
-                  readOnly: true,
-                  initialValue:
-                      storyWorkspaceController.story.estimatedReadTime,
+              ],
+            ),
+            const SizedBox(height: 20),
 
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Estimated Read Time",
-                    hintText: "Read Time",
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    initialValue: story.estimatedReadTime ?? '',
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Estimated Read Time',
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 20),
-              Expanded(
-                child: TextFormField(
-                  readOnly: true,
-                  initialValue: storyWorkspaceController.story.geolocation,
-
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Geolocation",
-                    hintText: "GeoLocation",
+                const SizedBox(width: 20),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    initialValue: story.geolocation ?? '',
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Geolocation',
+                    ),
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            TextFormField(
+              readOnly: true,
+              initialValue: story.scientistNames?.join(', ') ?? '',
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Scientists',
               ),
-            ],
-          ),
-          SizedBox(height: 20),
-
-          // scientists names
-          TextFormField(
-            readOnly: true,
-            initialValue: storyWorkspaceController.story.scientistNames!.join(
-              ", ",
             ),
+            const SizedBox(height: 10),
 
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Scientists",
-              hintText: "Einstein,Newton,...",
-            ),
-          ),
-          SizedBox(height: 10),
-
-          // Image Url
-          TextFormField(
-            readOnly: true,
-            initialValue: storyWorkspaceController.story.imageUrl,
-
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Image Url",
-              hintText: "Image Url",
-            ),
-          ),
-          SizedBox(height: 10),
-
-          // isPublished
-          Row(
-            children: [
-              ToggleBox(
-                title: "Popular",
-                isEnabled: storyWorkspaceController.story.isPopular!,
-                onTap: () {},
+            TextFormField(
+              readOnly: true,
+              initialValue: story.imageUrl ?? '',
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Image URL',
               ),
-            ],
-          ),
-        ],
-      ),
-    );
+            ),
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                ToggleBox(
+                  title: 'Popular',
+                  isEnabled: story.isPopular ?? false,
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

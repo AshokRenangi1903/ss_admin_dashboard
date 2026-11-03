@@ -15,9 +15,17 @@ class StoryPreviewPublishStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final storyBlocksController = Get.find<StoryBlocksController>();
     final storyWorkspaceController = Get.find<StoryWorkspaceController>();
+
     return Obx(() {
+      final story = storyWorkspaceController.story.value;
+
+      if (story == null) {
+        return const Center(child: Text('Story details unavailable.'));
+      }
+
       final storyBlocks =
           storyBlocksController.storyBlocksResponse.value.data ?? [];
+
       return Center(
         child: Theme(
           data: Theme.of(context).copyWith(
@@ -28,7 +36,6 @@ class StoryPreviewPublishStep extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                // padding: EdgeInsets.all(12),
                 width: 390,
                 height: 800,
                 decoration: BoxDecoration(
@@ -37,51 +44,37 @@ class StoryPreviewPublishStep extends StatelessWidget {
                 ),
                 child: SingleChildScrollView(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Story Details Heading
                       Padding(
-                        padding: EdgeInsetsGeometry.fromLTRB(30, 30, 30, 0),
+                        padding: const EdgeInsets.fromLTRB(30, 30, 30, 0),
                         child: PreviewStoryHeader(
-                          storyTitle:
-                              storyWorkspaceController.story.title ?? "",
-                          storyDescription:
-                              storyWorkspaceController.story.description ?? "",
-                          discipline:
-                              storyWorkspaceController.story.discipline ?? "",
-                          subject: storyWorkspaceController.story.subject ?? "",
-                          geolocation:
-                              storyWorkspaceController.story.geolocation ?? "",
-                          scientists:
-                              storyWorkspaceController.story.scientistNames ??
-                              [],
-                          time:
-                              storyWorkspaceController
-                                  .story
-                                  .estimatedReadTime ??
-                              "",
+                          storyTitle: story.title ?? '',
+                          storyDescription: story.description ?? '',
+                          discipline: story.discipline ?? '',
+                          subject: story.subject ?? '',
+                          geolocation: story.geolocation ?? '',
+                          scientists: story.scientistNames ?? [],
+                          time: story.estimatedReadTime ?? '',
                         ),
                       ),
 
-                      // Story Blocks Preview
                       Padding(
-                        padding: EdgeInsetsGeometry.all(20),
-
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           children: [
                             ...storyBlocks.map(
                               (block) => Column(
                                 children: [
                                   PreviewStoryBlockRender(block: block),
-                                  SizedBox(height: 12),
+                                  const SizedBox(height: 12),
                                 ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // Updated At Time Stamp
+
                       Container(
                         height: 100,
                         decoration: BoxDecoration(color: AppColors.blue),
@@ -89,15 +82,15 @@ class StoryPreviewPublishStep extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                "Updated At",
+                              const Text(
+                                'Updated At',
                                 style: TextStyle(color: Colors.white),
                               ),
                               Text(
-                                formatDateTime(
-                                  storyWorkspaceController.story.updatedAt!,
-                                ),
-                                style: TextStyle(color: Colors.white),
+                                story.updatedAt == null
+                                    ? 'Not available'
+                                    : formatDateTime(story.updatedAt!),
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ],
                           ),

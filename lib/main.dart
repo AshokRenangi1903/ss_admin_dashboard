@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ss_admin_dashboard/core/bindings/initial_binding.dart';
-import 'package:ss_admin_dashboard/core/routes/routes.dart';
+import 'package:ss_admin_dashboard/core/routes/app_routes.dart';
 import 'package:ss_admin_dashboard/core/routes/routes_name.dart';
 
 void main() {
+  usePathUrlStrategy();
+
   runApp(const MyApp());
 }
 

@@ -57,19 +57,15 @@ class EraGrid extends StatelessWidget {
                       imageUrl: eras[index].imageUrl!,
                       storiesCount: eras[index].storiesCount!,
                       onTap: () async {
-                        storyController.selectedEraId.value = eras[index].id!;
+                        final era = eras[index];
+                        final eraId = era.id!;
+
+                        storyController.selectedEraId.value = eraId;
                         storyController.isOrderChanged.value = false;
-                        Get.toNamed(
-                          RoutesName.eraStories,
 
-                          arguments: eras[index],
+                        await Get.toNamed(
+                          RoutesName.eraStories.replaceFirst(':eraId', eraId),
                         );
-                        await storyController.getEraStories(eras[index].id!);
-
-                        // eraController.selectedEra.value = eras[index];
-                        // dashboardController.selectMenuItem(
-                        //   DashboardMenu.stories,
-                        // );
                       },
                       onDelete: () {
                         showDialog(

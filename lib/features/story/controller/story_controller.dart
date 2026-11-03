@@ -19,6 +19,18 @@ class StoryController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isOrderChanged = false.obs;
 
+  static const List<String> subjects = [
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'Medicine',
+    'Astronomy & Space',
+    'Earth & Environment',
+    'Mathematics',
+    'Computer Science',
+    'Materials & Technology',
+  ];
+
   // Story  Dialog Fields
   final formKey = GlobalKey<FormState>();
 
@@ -27,7 +39,7 @@ class StoryController extends GetxController {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final disciplineController = TextEditingController();
-  final subjectController = TextEditingController();
+  final RxnString selectedSubject = RxnString();
   final imageUrlController = TextEditingController();
   final geolocationController = TextEditingController();
   final estimatedReadTimeController = TextEditingController();
@@ -81,46 +93,66 @@ class StoryController extends GetxController {
   final publishedFilter = RxnBool();
   final popularFilter = RxnBool();
 
+  // false = newest first, true = oldest first
+  final RxString sortOrder = 'none'.obs;
+
   List<StoryModel> get filteredStories {
     final stories = storiesResponse.value.data ?? [];
+    final search = searchText.value.trim().toLowerCase();
 
-    return stories.where((story) {
-      // Search
-      final search = searchText.value.trim().toLowerCase();
-
+    final result = stories.where((story) {
       final matchesScientist =
           story.scientistNames?.any(
             (scientist) => scientist.toLowerCase().contains(search),
           ) ??
           false;
+
       final matchesSearch =
           search.isEmpty ||
           (story.title ?? '').toLowerCase().contains(search) ||
           (story.description ?? '').toLowerCase().contains(search) ||
-          matchesScientist;
+          matchesScientist ||
+          (story.subject ?? '').toLowerCase().contains(search) ||
+          (story.discipline ?? '').toLowerCase().contains(search) ||
+          (story.geolocation ?? '').toLowerCase().contains(search);
 
-      // Era
       final matchesEra =
           selectedEraIdFilter.value == null ||
           story.eraId == selectedEraIdFilter.value;
 
-      // Published
       final matchesPublished =
           publishedFilter.value == null ||
           story.isPublished == publishedFilter.value;
 
-      // Popular
       final matchesPopular =
           popularFilter.value == null || story.isPopular == popularFilter.value;
 
       return matchesEra && matchesSearch && matchesPublished && matchesPopular;
     }).toList();
+
+    if (sortOrder.value != 'none') {
+      result.sort((a, b) {
+        final dateA = DateTime.tryParse(a.updatedAt ?? '');
+        final dateB = DateTime.tryParse(b.updatedAt ?? '');
+
+        if (dateA == null && dateB == null) return 0;
+        if (dateA == null) return 1;
+        if (dateB == null) return -1;
+
+        return sortOrder.value == 'asc'
+            ? dateA.compareTo(dateB)
+            : dateB.compareTo(dateA);
+      });
+    }
+
+    return result;
   }
 
   void clearFilters() {
     publishedFilter.value = null;
     popularFilter.value = null;
     selectedEraIdFilter.value = null;
+    sortOrder.value = 'none';
     searchText.value = '';
     searchTextController.clear();
   }
@@ -173,7 +205,7 @@ class StoryController extends GetxController {
         discipline: disciplineController.text.trim(),
         geolocation: geolocationController.text.trim(),
         estimatedReadTime: estimatedReadTimeController.text.trim(),
-        subject: subjectController.text.trim(),
+        subject: selectedSubject.value,
 
         isPublished: isPublished.value,
         isPopular: isPopular.value,
@@ -205,7 +237,7 @@ class StoryController extends GetxController {
       disciplineController.text = story.discipline ?? '';
       geolocationController.text = story.geolocation ?? '';
       estimatedReadTimeController.text = story.estimatedReadTime ?? '';
-      subjectController.text = story.subject ?? '';
+      selectedSubject.value = story.subject;
       scientistsController.text = (story.scientistNames ?? []).join(", ");
 
       isPublished.value = story.isPublished!;
@@ -238,7 +270,7 @@ class StoryController extends GetxController {
         discipline: disciplineController.text.trim(),
         geolocation: geolocationController.text.trim(),
         estimatedReadTime: estimatedReadTimeController.text.trim(),
-        subject: subjectController.text.trim(),
+        subject: selectedSubject.value,
 
         isPublished: isPublished.value,
         isPopular: isPopular.value,
@@ -319,7 +351,7 @@ class StoryController extends GetxController {
     selectedEraId.value = null;
     titleController.clear();
     descriptionController.clear();
-    subjectController.clear();
+    selectedSubject.value = null;
     disciplineController.clear();
     imageUrlController.clear();
     geolocationController.clear();

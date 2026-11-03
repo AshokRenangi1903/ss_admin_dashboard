@@ -3,13 +3,43 @@ import 'package:get/get.dart';
 import 'package:ss_admin_dashboard/features/story/controller/story_controller.dart';
 import 'package:ss_admin_dashboard/features/story/model/story_model.dart';
 import 'package:ss_admin_dashboard/features/story_workspace/models/story_workspace_step_item.dart';
+import 'package:ss_admin_dashboard/features/story/repository/story_repository.dart';
 
 class StoryWorkspaceController extends GetxController {
-  late final StoryModel story;
+  late Future<bool> storyLoadFuture;
   @override
   void onInit() {
     super.onInit();
-    story = Get.arguments as StoryModel;
+    storyLoadFuture = loadStory();
+  }
+
+  final StoryRepository _storyRepository = StoryRepository();
+
+  final Rxn<StoryModel> story = Rxn<StoryModel>();
+  final RxBool isLoading = true.obs;
+  final RxnString errorMessage = RxnString();
+
+  Future<bool> loadStory() async {
+    final storyId = Get.parameters['storyId'];
+
+    if (storyId == null || storyId.isEmpty) {
+      errorMessage.value = 'Invalid story ID.';
+      isLoading.value = false;
+      return false;
+    }
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = null;
+
+      story.value = await _storyRepository.getStoryById(storyId);
+      return true;
+    } catch (e) {
+      errorMessage.value = 'Failed to load story details.';
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   final storyController = Get.find<StoryController>();

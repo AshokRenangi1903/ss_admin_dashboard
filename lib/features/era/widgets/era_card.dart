@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ss_admin_dashboard/shared/colors/colors.dart';
-import 'package:ss_admin_dashboard/shared/components/chip_text.dart';
 
 class EraCard extends StatelessWidget {
   final String title, startYear, endYear, imageUrl;

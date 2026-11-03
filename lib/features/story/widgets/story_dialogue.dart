@@ -118,14 +118,29 @@ class StoryDialogue extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Expanded(
-                              child: TextFormField(
-                                controller: storyController.subjectController,
-
-                                decoration: InputDecoration(
+                              child: DropdownButtonFormField<String>(
+                                initialValue:
+                                    storyController.selectedSubject.value,
+                                decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: "Subject",
-                                  hintText: "Subject",
+                                  labelText: 'Subject',
                                 ),
+                                hint: const Text('Select Subject'),
+                                items: StoryController.subjects.map((subject) {
+                                  return DropdownMenuItem<String>(
+                                    value: subject,
+                                    child: Text(subject),
+                                  );
+                                }).toList(),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select a subject';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
+                                  storyController.selectedSubject.value = value;
+                                },
                               ),
                             ),
                             SizedBox(width: 20),

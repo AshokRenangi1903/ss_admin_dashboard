@@ -8,7 +8,6 @@ import 'package:ss_admin_dashboard/features/story/widgets/story_card.dart';
 import 'package:ss_admin_dashboard/features/story/widgets/story_dialogue.dart';
 import 'package:ss_admin_dashboard/shared/components/Animations/empty_box.dart';
 import 'package:ss_admin_dashboard/shared/components/Animations/loading_dots.dart';
-import 'package:ss_admin_dashboard/shared/components/Animations/rocket_loading.dart';
 import 'package:ss_admin_dashboard/shared/components/app_button.dart';
 
 class StoryGrid extends StatelessWidget {
@@ -47,8 +46,10 @@ class StoryGrid extends StatelessWidget {
               return StoryCard(
                 onTap: () {
                   Get.toNamed(
-                    RoutesName.storyWorkspace,
-                    arguments: stories[index],
+                    RoutesName.storyWorkspace.replaceFirst(
+                      ':storyId',
+                      stories[index].id!,
+                    ),
                   );
                 },
                 onDelete: () {

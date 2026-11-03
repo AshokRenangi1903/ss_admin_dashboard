@@ -42,10 +42,21 @@ class EraController extends GetxController {
       uploadedImageUrl.value = imageUrl;
       selectedImage.value = file;
     } catch (error) {
-      Get.snackbar('Upload failed', error.toString()); 
+      Get.snackbar('Upload failed', error.toString());
     } finally {
       isImageUploading.value = false;
     }
+  }
+
+  EraModel? getEraById(String eraId) {
+    final eras = erasResponse.value.data;
+    if (eras == null) return null;
+
+    for (final era in eras) {
+      if (era.id == eraId) return era;
+    }
+
+    return null;
   }
 
   // Get Eras

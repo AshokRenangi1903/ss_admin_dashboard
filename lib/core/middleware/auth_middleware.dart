@@ -8,9 +8,11 @@ class AuthMiddleware extends GetMiddleware {
   RouteSettings? redirect(String? route) {
     final authController = Get.find<AuthController>();
 
-    // /me verification still running
     if (authController.isCheckingAuth.value) {
-      return const RouteSettings(name: RoutesName.authGate);
+      return RouteSettings(
+        name: RoutesName.authGate,
+        arguments: {'returnTo': route},
+      );
     }
 
     if (authController.isAuthenticated.value) {

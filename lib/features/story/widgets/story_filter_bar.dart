@@ -38,13 +38,16 @@ class StoryFilterBar extends StatelessWidget {
                         storyController.searchText.value = value;
                       },
                       decoration: InputDecoration(
-                        hintText: "Search title / description / scientist",
+                        hintText:
+                            "Search title / description / scientist / subject / discipline / geolocation",
                         prefixIcon: Icon(Icons.search),
                         border: InputBorder.none,
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 4),
+
                 Column(
                   children: [
                     Obx(
@@ -63,6 +66,9 @@ class StoryFilterBar extends StatelessWidget {
               ],
             ),
 
+            // -------------------------
+            //  Drop downs and filters
+            // -------------------------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -72,30 +78,34 @@ class StoryFilterBar extends StatelessWidget {
                 Expanded(
                   child: Obx(() {
                     final eras = eraController.erasResponse.value.data;
+
+                    final selectedEraId =
+                        storyController.selectedEraIdFilter.value;
+
+                    final validSelectedEraId =
+                        eras?.any((era) => era.id == selectedEraId) == true
+                        ? selectedEraId
+                        : null;
+
                     return DropdownButtonFormField<String>(
-                      initialValue: storyController.selectedEraIdFilter.value,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Select Era';
-                        }
-                        return null;
-                      },
+                      initialValue: validSelectedEraId,
                       decoration: const InputDecoration(
                         labelText: "Era",
                         border: OutlineInputBorder(),
                         hintText: "Select Era",
                       ),
                       items: [
-                        DropdownMenuItem<String>(
+                        const DropdownMenuItem<String>(
                           value: null,
                           child: Text("All"),
                         ),
-                        ...eras!.map((era) {
-                          return DropdownMenuItem<String>(
-                            value: era.id,
-                            child: Text(era.title!),
-                          );
-                        }),
+                        if (eras != null)
+                          ...eras.map((era) {
+                            return DropdownMenuItem<String>(
+                              value: era.id,
+                              child: Text(era.title ?? "Untitled Era"),
+                            );
+                          }),
                       ],
                       onChanged: (value) {
                         storyController.selectedEraIdFilter.value = value;
@@ -168,6 +178,41 @@ class StoryFilterBar extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 4),
+
+                // ------------------
+                //  Sorting by Date and Time
+                // ------------------
+                Expanded(
+                  child: Obx(
+                    () => DropdownButtonFormField<String>(
+                      initialValue: storyController.sortOrder.value,
+                      decoration: const InputDecoration(
+                        labelText: 'Updated Date',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'none',
+                          child: Text('No Sorting'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'asc',
+                          child: Text('Oldest First ↑'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'desc',
+                          child: Text('Newest First ↓'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          storyController.sortOrder.value = value;
+                        }
+                      },
+                    ),
+                  ),
+                ),
+
                 // -----------------
                 // Clear Button
                 // -----------------
