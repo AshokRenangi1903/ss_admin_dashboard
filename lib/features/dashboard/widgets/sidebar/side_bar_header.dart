@@ -10,18 +10,18 @@ class SideBarHeader extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          Icon(
-            Icons.science,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primaryColor,
-            size: 34,
+          Image.asset(
+            'assets/icon/app_icon.png',
+            width: 38,
+            height: 38,
+            fit: BoxFit.contain,
           ),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Science Stories",
+                "Science Stories™",
                 style: TextStyle(
                   color: AppColors.primaryColor,
                   fontSize: 18,
