@@ -62,7 +62,7 @@ class StoryRepository {
     await _api.deleteApi(AppUrls.deleteStory(id));
   }
 
-  // Reorder Stories of an Era
+  // Reorder Stories of an Eravs
   Future<dynamic> reorderStories(List<String> orderedIds, String eraId) async {
     print("Repo orderIds $orderedIds");
     final response = await _api.patchApi({

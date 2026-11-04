@@ -44,6 +44,7 @@ class StoryController extends GetxController {
   final geolocationController = TextEditingController();
   final estimatedReadTimeController = TextEditingController();
   final scientistsController = TextEditingController();
+  final keywordsController = TextEditingController();
 
   final RxBool isPublished = false.obs;
   final RxBool isPopular = false.obs;
@@ -195,6 +196,11 @@ class StoryController extends GetxController {
           .map((name) => name.trim())
           .where((name) => name.isNotEmpty)
           .toList();
+      final List<String> keywords = keywordsController.text
+          .split(',')
+          .map((keyword) => keyword.trim())
+          .where((keyword) => keyword.isNotEmpty)
+          .toList();
 
       final story = StoryModel(
         eraId: selectedEraId.value,
@@ -210,6 +216,7 @@ class StoryController extends GetxController {
         isPublished: isPublished.value,
         isPopular: isPopular.value,
         scientistNames: scientistNames,
+        keywords: keywords,
       );
 
       await _repository.createStory(story, selectedEraId.value!);
@@ -239,7 +246,7 @@ class StoryController extends GetxController {
       estimatedReadTimeController.text = story.estimatedReadTime ?? '';
       selectedSubject.value = story.subject;
       scientistsController.text = (story.scientistNames ?? []).join(", ");
-
+      keywordsController.text = (story.keywords ?? []).join(", ");
       isPublished.value = story.isPublished!;
       isPopular.value = story.isPopular!;
     } catch (err) {
@@ -260,7 +267,11 @@ class StoryController extends GetxController {
           .map((name) => name.trim())
           .where((name) => name.isNotEmpty)
           .toList();
-
+      final List<String> keywords = keywordsController.text
+          .split(',')
+          .map((keyword) => keyword.trim())
+          .where((keyword) => keyword.isNotEmpty)
+          .toList();
       final story = StoryModel(
         eraId: selectedEraId.value,
         title: titleController.text.trim(),
@@ -275,6 +286,7 @@ class StoryController extends GetxController {
         isPublished: isPublished.value,
         isPopular: isPopular.value,
         scientistNames: scientistNames,
+        keywords: keywords,
       );
 
       await _repository.updateStory(story, selectedStory.value!.id!);
@@ -359,6 +371,7 @@ class StoryController extends GetxController {
     scientistsController.clear();
     isPublished.value = false;
     isPopular.value = false;
+    keywordsController.clear();
     selectedImage.value = null;
     selectedImageBytes.value = null;
     uploadedImageUrl.value = '';

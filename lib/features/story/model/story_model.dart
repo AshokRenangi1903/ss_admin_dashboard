@@ -15,6 +15,7 @@ class StoryModel {
   String? createdAt;
   String? updatedAt;
   Era? era;
+  List<String>? keywords;
 
   StoryModel({
     this.id,
@@ -22,6 +23,7 @@ class StoryModel {
     this.title,
     this.description,
     this.scientistNames,
+    this.keywords,
     this.imageUrl,
     this.position,
     this.isPopular,
@@ -40,7 +42,11 @@ class StoryModel {
     eraId = json['eraId'];
     title = json['title'];
     description = json['description'];
-    scientistNames = json['scientistNames'].cast<String>();
+    keywords =
+        (json['keywords'] as List?)?.map((e) => e.toString()).toList() ?? [];
+    scientistNames =
+        (json['scientistNames'] as List?)?.map((e) => e.toString()).toList() ??
+        [];
     imageUrl = json['imageUrl'];
     position = json['position'];
     isPopular = json['isPopular'];
@@ -61,6 +67,7 @@ class StoryModel {
     data['title'] = this.title;
     data['description'] = this.description;
     data['scientistNames'] = this.scientistNames;
+    data['keywords'] = this.keywords;
     data['imageUrl'] = this.imageUrl;
     data['position'] = this.position;
     data['isPopular'] = this.isPopular;

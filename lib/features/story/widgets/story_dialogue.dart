@@ -208,6 +208,21 @@ class StoryDialogue extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
 
+                        // Keywords
+                        const SizedBox(height: 10),
+
+                        TextFormField(
+                          controller: storyController.keywordsController,
+                          maxLines: 2,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Keywords",
+                            hintText:
+                                "Einstein, Relativity, Space-Time, Gravity",
+                            helperText: "Enter keywords separated by commas",
+                          ),
+                        ),
+                        SizedBox(height: 10),
                         // Story Image Upload
                         Text("Story Image"),
                         const SizedBox(height: 10),
