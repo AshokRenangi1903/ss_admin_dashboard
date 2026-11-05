@@ -36,16 +36,20 @@ class LoginController extends GetxController {
         password: passwordController.text,
       );
 
+      // 1. Login API
       await _repository.loginAdmin(request);
 
-      await authController.checkAuth();
+      // 2. Verify the admin session
+      final isValid = await authController.checkAuth();
 
+      if (!isValid) {
+        throw Exception('Unable to verify admin session.');
+      }
+
+      // 3. Navigate only after successful verification
       Get.offAllNamed(RoutesName.dashboard);
 
       Get.snackbar("Login Success", "Admin Logged in successfully!");
-      // handle response
-      // save token
-      // navigate to dashboard
     } catch (e) {
       Get.snackbar("Login Failed", e.toString());
     } finally {

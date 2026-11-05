@@ -13,15 +13,17 @@ class AuthController extends GetxController {
     checkAuth();
   }
 
-  Future<void> checkAuth() async {
+  Future<bool> checkAuth() async {
     try {
       isCheckingAuth.value = true;
 
       await _repository.getCurrentAdmin();
 
       isAuthenticated.value = true;
+      return true;
     } catch (e) {
       isAuthenticated.value = false;
+      return false;
     } finally {
       isCheckingAuth.value = false;
     }

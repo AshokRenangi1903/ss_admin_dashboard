@@ -68,7 +68,8 @@ class AppUrls {
       '$baseUrl/api/questions/$questionId/deleteQuestion';
 
   // Admin Login
-  static String adminLogin = '$baseUrl/api/auth/adminLogin';
-  static String adminLogout = '$baseUrl/api/auth/adminLogout';
-  static String adminMe = '$baseUrl/api/auth/me';
+  static const String adminLogin = '$baseUrl/api/auth/adminLogin';
+  static const String adminRefresh = '$baseUrl/api/auth/refresh';
+  static const String adminLogout = '$baseUrl/api/auth/adminLogout';
+  static const String adminMe = '$baseUrl/api/auth/me';
 }
