@@ -39,7 +39,7 @@ class StoryFilterBar extends StatelessWidget {
                       },
                       decoration: InputDecoration(
                         hintText:
-                            "Search title / description / scientist / subject / discipline / geolocation",
+                            "Search title / description / scientist / subject / discipline / geolocation / keywords",
                         prefixIcon: Icon(Icons.search),
                         border: InputBorder.none,
                       ),
