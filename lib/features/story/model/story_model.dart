@@ -17,6 +17,36 @@ class StoryModel {
   Era? era;
   List<String>? keywords;
 
+  // Dashboard display names <-> Prisma enum identifiers.
+  static const Map<String, String> _subjectToEnum = {
+    'Physics': 'PHYSICS',
+    'Chemistry': 'CHEMISTRY',
+    'Biology': 'BIOLOGY',
+    'Medicine': 'MEDICINE',
+    'Astronomy & Space': 'ASTRONOMY_SPACE',
+    'Earth & Environment': 'EARTH_ENVIRONMENT',
+    'Mathematics': 'MATHEMATICS',
+    'Computer Science': 'COMPUTER_SCIENCE',
+    'Materials & Technology': 'MATERIALS_TECHNOLOGY',
+  };
+
+  static final Map<String, String> _enumToSubject = {
+    for (final entry in _subjectToEnum.entries) entry.value: entry.key,
+  };
+
+  static String? _toDisplaySubject(dynamic value) {
+    if (value == null) return null;
+
+    final subject = value.toString();
+    return _enumToSubject[subject] ?? subject;
+  }
+
+  static String? _toApiSubject(String? value) {
+    if (value == null) return null;
+
+    return _subjectToEnum[value] ?? value;
+  }
+
   StoryModel({
     this.id,
     this.eraId,
@@ -42,45 +72,56 @@ class StoryModel {
     eraId = json['eraId'];
     title = json['title'];
     description = json['description'];
+
     keywords =
         (json['keywords'] as List?)?.map((e) => e.toString()).toList() ?? [];
+
     scientistNames =
         (json['scientistNames'] as List?)?.map((e) => e.toString()).toList() ??
         [];
+
     imageUrl = json['imageUrl'];
     position = json['position'];
     isPopular = json['isPopular'];
     isPublished = json['isPublished'];
     discipline = json['discipline'];
-    subject = json['subject'];
+
+    subject = _toDisplaySubject(json['subject']);
+
     geolocation = json['geolocation'];
     estimatedReadTime = json['estimatedReadTime'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    era = json['era'] != null ? new Era.fromJson(json['era']) : null;
+
+    era = json['era'] != null ? Era.fromJson(json['era']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['eraId'] = this.eraId;
-    data['title'] = this.title;
-    data['description'] = this.description;
-    data['scientistNames'] = this.scientistNames;
-    data['keywords'] = this.keywords;
-    data['imageUrl'] = this.imageUrl;
-    data['position'] = this.position;
-    data['isPopular'] = this.isPopular;
-    data['isPublished'] = this.isPublished;
-    data['discipline'] = this.discipline;
-    data['subject'] = this.subject;
-    data['geolocation'] = this.geolocation;
-    data['estimatedReadTime'] = this.estimatedReadTime;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    if (this.era != null) {
-      data['era'] = this.era!.toJson();
+    final Map<String, dynamic> data = {};
+
+    data['id'] = id;
+    data['eraId'] = eraId;
+    data['title'] = title;
+    data['description'] = description;
+    data['scientistNames'] = scientistNames;
+    data['keywords'] = keywords;
+    data['imageUrl'] = imageUrl;
+    data['position'] = position;
+    data['isPopular'] = isPopular;
+    data['isPublished'] = isPublished;
+    data['discipline'] = discipline;
+
+    data['subject'] = _toApiSubject(subject);
+
+    data['geolocation'] = geolocation;
+    data['estimatedReadTime'] = estimatedReadTime;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+
+    if (era != null) {
+      data['era'] = era!.toJson();
     }
+
     return data;
   }
 }
@@ -97,9 +138,9 @@ class Era {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['title'] = this.title;
+    final Map<String, dynamic> data = {};
+    data['id'] = id;
+    data['title'] = title;
     return data;
   }
 }
