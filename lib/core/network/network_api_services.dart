@@ -1,43 +1,45 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:http/browser_client.dart';
-import 'package:ss_admin_dashboard/core/exceptions/app_exceptions.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:ss_admin_dashboard/core/constants/app_urls.dart';
+
+import 'package:ss_admin_dashboard/core/exceptions/app_exceptions.dart';
 import 'package:ss_admin_dashboard/core/network/base_api_services.dart';
 
 class NetworkApiServices extends BaseApiServices {
   final BrowserClient _client = BrowserClient()..withCredentials = true;
-  // Get API
-  @override
-  Future getApi(String url) async {
-    dynamic responseJson;
 
-    try {
-      final response = await _client
-          .get(Uri.parse(url))
-          .timeout(const Duration(seconds: 15));
-      responseJson = returnResponse(response);
-      return responseJson;
-    } on TimeoutException {
-      throw RequestTimeOut('Request timed out');
-    } on SocketException {
-      throw InternetException('No internet connection');
-    }
-  }
+  // Prevent multiple simultaneous refresh requests in this app instance.
+  Future<bool>? _refreshFuture;
 
-  // Post API
-  @override
-  Future postApi(String url, {dynamic data}) async {
+  // --------------------------------------------------
+  // CENTRAL REQUEST HANDLER
+  // --------------------------------------------------
+
+  Future<dynamic> _request(
+    String method,
+    String url, {
+    dynamic data,
+    bool allowRefresh = true,
+  }) async {
     try {
-      final response = await _client
-          .post(
-            Uri.parse(url),
-            body: data != null ? jsonEncode(data) : null,
-            headers: {"Content-Type": "application/json"},
-          )
-          .timeout(const Duration(seconds: 15));
+      final response = await _sendRequest(method, url, data: data);
+
+      // Access token expired: attempt refresh before throwing 401.
+      if (response.statusCode == 401 && allowRefresh && !_isAuthEndpoint(url)) {
+        final refreshed = await _refreshAccessToken();
+
+        if (refreshed) {
+          // Retry the original request once with the new cookie.
+          final retryResponse = await _sendRequest(method, url, data: data);
+
+          return returnResponse(retryResponse);
+        }
+      }
 
       return returnResponse(response);
     } on TimeoutException {
@@ -47,84 +49,144 @@ class NetworkApiServices extends BaseApiServices {
     }
   }
 
-  // Put API
-  @override
-  Future putApi(dynamic data, String url) async {
+  Future<http.Response> _sendRequest(
+    String method,
+    String url, {
+    dynamic data,
+  }) async {
+    final request = http.Request(method, Uri.parse(url));
+
+    if (data != null) {
+      request.headers['Content-Type'] = 'application/json';
+      request.body = jsonEncode(data);
+    }
+
+    final streamedResponse = await _client
+        .send(request)
+        .timeout(const Duration(seconds: 15));
+
+    return http.Response.fromStream(streamedResponse);
+  }
+
+  // Do not attempt refresh for login, refresh, or logout endpoints.
+  bool _isAuthEndpoint(String url) {
+    final path = Uri.parse(url).path;
+
+    return path.endsWith('/adminLogin') ||
+        path.endsWith('/refresh') ||
+        path.endsWith('/adminLogout');
+  }
+
+  // --------------------------------------------------
+  // REFRESH ACCESS TOKEN
+  // --------------------------------------------------
+
+  Future<bool> _refreshAccessToken() async {
+    if (_refreshFuture != null) {
+      return _refreshFuture!;
+    }
+
+    final future = _performRefresh();
+    _refreshFuture = future;
+
     try {
+      return await future;
+    } finally {
+      if (identical(_refreshFuture, future)) {
+        _refreshFuture = null;
+      }
+    }
+  }
+
+  Future<bool> _performRefresh() async {
+    try {
+      // Direct request: avoids recursively triggering refresh.
       final response = await _client
-          .put(
-            Uri.parse(url),
-            body: jsonEncode(data),
-            headers: {"Content-Type": "application/json"},
+          .post(
+            Uri.parse(AppUrls.adminRefresh),
+            headers: {'Content-Type': 'application/json'},
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 15));
 
-      dynamic responseJson = returnResponse(response);
-      return responseJson;
+      if (response.statusCode == 200) {
+        return true;
+      }
+
+      return false;
     } on TimeoutException {
-      throw RequestTimeOut('Request timed out');
+      return false;
     } on SocketException {
-      throw InternetException('No internet connection');
+      return false;
+    } catch (_) {
+      return false;
     }
   }
 
-  // Patch API
+  // --------------------------------------------------
+  // GET API
+  // --------------------------------------------------
+
   @override
-  Future patchApi(dynamic data, String url) async {
-    try {
-      final response = await _client
-          .patch(
-            Uri.parse(url),
-            body: jsonEncode(data),
-            headers: {"Content-Type": "application/json"},
-          )
-          .timeout(const Duration(seconds: 10));
-
-      dynamic responseJson = returnResponse(response);
-      return responseJson;
-    } on TimeoutException {
-      throw RequestTimeOut('Request timed out');
-    } on SocketException {
-      throw InternetException('No internet connection');
-    }
+  Future<dynamic> getApi(String url) {
+    return _request('GET', url);
   }
 
-  // Delete API
+  // --------------------------------------------------
+  // POST API
+  // --------------------------------------------------
+
   @override
-  Future deleteApi(String url) async {
-    try {
-      final response = await _client
-          .delete(Uri.parse(url), headers: {"Content-Type": "application/json"})
-          .timeout(const Duration(seconds: 10));
-
-      dynamic responseJson = returnResponse(response);
-      return responseJson;
-    } on TimeoutException {
-      throw RequestTimeOut('Request timed out');
-    } on SocketException {
-      throw InternetException('No internet connection');
-    }
+  Future<dynamic> postApi(String url, {dynamic data}) {
+    return _request('POST', url, data: data);
   }
 
-  // Image Upload
+  // --------------------------------------------------
+  // PUT API
+  // --------------------------------------------------
+
+  @override
+  Future<dynamic> putApi(dynamic data, String url) {
+    return _request('PUT', url, data: data);
+  }
+
+  // --------------------------------------------------
+  // PATCH API
+  // --------------------------------------------------
+
+  @override
+  Future<dynamic> patchApi(dynamic data, String url) {
+    return _request('PATCH', url, data: data);
+  }
+
+  // --------------------------------------------------
+  // DELETE API
+  // --------------------------------------------------
+
+  @override
+  Future<dynamic> deleteApi(String url) {
+    return _request('DELETE', url);
+  }
+
+  // --------------------------------------------------
+  // IMAGE UPLOAD
+  // --------------------------------------------------
+
   @override
   Future<dynamic> uploadImage(
     String url, {
     required List<int> bytes,
     required String filename,
   }) async {
-    try {
-      final extension = filename.split('.').last.toLowerCase();
+    final extension = filename.split('.').last.toLowerCase();
 
-      final mediaType = switch (extension) {
-        'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
-        'png' => MediaType('image', 'png'),
-        'webp' => MediaType('image', 'webp'),
-        _ => throw Exception(
-          'Only JPG, JPEG, PNG and WebP images are allowed.',
-        ),
-      };
+    final mediaType = switch (extension) {
+      'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
+      'png' => MediaType('image', 'png'),
+      'webp' => MediaType('image', 'webp'),
+      _ => throw Exception('Only JPG, JPEG, PNG and WebP images are allowed.'),
+    };
 
+    Future<http.Response> sendUpload() async {
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
       request.files.add(
@@ -140,7 +202,19 @@ class NetworkApiServices extends BaseApiServices {
           .send(request)
           .timeout(const Duration(seconds: 60));
 
-      final response = await http.Response.fromStream(streamedResponse);
+      return http.Response.fromStream(streamedResponse);
+    }
+
+    try {
+      var response = await sendUpload();
+
+      if (response.statusCode == 401 && !_isAuthEndpoint(url)) {
+        final refreshed = await _refreshAccessToken();
+
+        if (refreshed) {
+          response = await sendUpload();
+        }
+      }
 
       return returnResponse(response);
     } on TimeoutException {
@@ -149,6 +223,10 @@ class NetworkApiServices extends BaseApiServices {
       throw InternetException('No internet connection');
     }
   }
+
+  // --------------------------------------------------
+  // RESPONSE HANDLER
+  // --------------------------------------------------
 
   dynamic returnResponse(http.Response response) {
     switch (response.statusCode) {
@@ -176,6 +254,7 @@ class NetworkApiServices extends BaseApiServices {
 
       case 500:
         throw ServerException(_getMessage(response));
+
       case 502:
       case 503:
         throw ServiceUnreachableException();
@@ -187,9 +266,10 @@ class NetworkApiServices extends BaseApiServices {
     }
   }
 
-  // -------------------------
-  // Helper Function
-  // -------------------------
+  // --------------------------------------------------
+  // HELPER
+  // --------------------------------------------------
+
   String _getMessage(http.Response response) {
     if (response.body.isEmpty) {
       return 'Request failed';
